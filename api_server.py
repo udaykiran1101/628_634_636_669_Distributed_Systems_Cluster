@@ -1,30 +1,33 @@
 from flask import Flask, request, jsonify
-from node_manager import NodeManager
 
 app = Flask(__name__)
-node_manager = NodeManager()
 
-cluster = {"nodes": []}
+nodes = []  # This is where the nodes will be stored.
 
-@app.route("/add_node", methods=["POST"])
+@app.route('/')
+def home():
+    return "Welcome to the Node Manager API"
+
+@app.route('/add_node', methods=['POST'])
 def add_node():
-    try:
-        data = request.get_json()
-        cpu_cores = data.get("cpu_cores", None)
-        if cpu_cores is None:
-            return jsonify({"error": "CPU cores must be specified."}), 400
-        
-        node = node_manager.add_node(cpu_cores)
-        cluster["nodes"].append(node)
-        
-        return jsonify({"message": "Node added successfully", "node": node}), 200
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
+    data = request.get_json()
+    cpu_cores = data.get('cpu_cores')
+    
+    if cpu_cores is None:
+        return jsonify({"message": "CPU cores must be provided"}), 400
 
-@app.route("/list_nodes", methods=["GET"])
+    # Add the node data to the list
+    node = {
+        "cpu_cores": cpu_cores
+    }
+    nodes.append(node)  # Save the node to the list
+
+    return jsonify({"message": "Node added successfully", "node": node}), 200
+
+@app.route('/list_nodes', methods=['GET'])
 def list_nodes():
-    return jsonify({"nodes": cluster["nodes"]}), 200
+    return jsonify({"nodes": nodes}), 200
 
-if __name__ == "__main__":
-    app.run(debug=True, port=5002)
+if __name__ == '__main__':
+    app.run(debug=True, host="0.0.0.0", port=5002)
 
