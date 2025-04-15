@@ -58,7 +58,7 @@ Pods are the smallest deployable units, scheduled on nodes:
 ### Start the API Server
 
 ```bash
-python enhanced_api_server.py
+python api_server.py
 ```
 
 This will start the API server at http://localhost:5002.
@@ -100,7 +100,7 @@ This will randomly simulate node failures and recoveries over the specified dura
 
 ## File Structure
 
-- `enhanced_api_server.py` - The main API server that includes node management, pod scheduling, and health monitoring
+- `api_server.py` - The main API server that includes node management, pod scheduling, and health monitoring
 - `health_monitor.py` - Component responsible for monitoring node health and rescheduling pods
 - `node_sim.py` - Simulates a cluster node that sends heartbeats to the API server
 - `node_manager.py` - Handles Docker containers to simulate physical nodes
