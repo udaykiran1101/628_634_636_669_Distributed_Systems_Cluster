@@ -41,14 +41,7 @@ Pods are the smallest deployable units, scheduled on nodes:
 - **Node Failure Simulation**: Includes a tool to simulate random node failures and recoveries.
 
 ## Installation
-
-1. Clone the repository:
-   ```
-   git clone https://github.com/your-username/distributed-cluster-simulator.git
-   cd distributed-cluster-simulator
-   ```
-
-2. Install dependencies:
+   Install dependencies:
    ```
    pip install -r requirements.txt
    ```
