@@ -23,7 +23,7 @@ def add_node():
         return jsonify({"message": "CPU cores must be provided"}), 400
 
     node = {
-        "id": f"node-{node_id_counter}",
+        "id": "node-{}".format(node_id_counter),
         "cpu_cores": cpu_cores,
         "available_cores": cpu_cores,
         "pods": []
@@ -57,7 +57,7 @@ def launch_pod():
     for node in nodes:
         if node["available_cores"] >= cpu_req:
             pod = {
-                "id": f"pod-{pod_id_counter}",
+                "id": "pod-{}".format(pod_id_counter),
                 "cpu_cores": cpu_req,
                 "assigned_node": node["id"]
             }
@@ -84,4 +84,3 @@ def list_nodes():
 
 if __name__ == '__main__':
     app.run(debug=True, host="0.0.0.0", port=5002)
-

@@ -12,13 +12,13 @@ class NodeManager:
                 "ubuntu",  # Using a basic Ubuntu image for simulation
                 command="sleep infinity",  # Keep the container running
                 detach=True,
-                name=f"node_{cpu_cores}_cores",
+                name="node_{}_cores".format(cpu_cores),
                 environment={"CPU_CORES": str(cpu_cores)},  # Simulate CPU core environment
             )
-            print(f"Node launched with container ID: {container.id}")
+            print("Node launched with container ID: {}".format(container.id))
             return container.id
         except Exception as e:
-            print(f"Error launching node: {e}")
+            print("Error launching node: {}".format(e))
             return None
 
     def add_node(self, cpu_cores):
@@ -29,7 +29,6 @@ class NodeManager:
                 "cpu_cores": cpu_cores,
                 "health": "healthy"
             }
-            print(f"Node added: {node}")
+            print("Node added: {}".format(node))
             return node
         return None
-
