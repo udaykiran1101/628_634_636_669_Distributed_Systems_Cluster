@@ -55,14 +55,13 @@ class HealthMonitor:
                 # If no heartbeat or too old, mark as unhealthy
                 if node_id not in self.node_heartbeat or current_time - self.node_heartbeat[node_id] > self.heartbeat_timeout:
                     if node_id not in self.failed_nodes:
-                        logger.warning("Node {} has failed! Last heartbeat: {}".format(
-                            node_id, self.node_heartbeat.get(node_id, 'None')))
+                        logger.warning(f"Node {node_id} has failed! Last heartbeat: {self.node_heartbeat.get(node_id, 'None')}")
                         self.failed_nodes.add(node_id)
                         self._handle_node_failure(node)
                 else:
                     # If node was previously failed but is now healthy, remove from failed set
                     if node_id in self.failed_nodes:
-                        logger.info("Node {} has recovered!".format(node_id))
+                        logger.info(f"Node {node_id} has recovered!")
                         self.failed_nodes.remove(node_id)
             
             # Sleep for a while before next check
@@ -75,17 +74,16 @@ class HealthMonitor:
         Args:
             failed_node: The node that has failed
         """
-        logger.info("Handling failure of node {}".format(failed_node['id']))
+        logger.info(f"Handling failure of node {failed_node['id']}")
         
         # Get all pods assigned to the failed node
         pods_to_reschedule = [pod for pod in self.pods if pod["assigned_node"] == failed_node["id"]]
         
         if not pods_to_reschedule:
-            logger.info("No pods to reschedule from failed node {}".format(failed_node['id']))
+            logger.info(f"No pods to reschedule from failed node {failed_node['id']}")
             return
         
-        logger.info("Found {} pods to reschedule from node {}".format(
-            len(pods_to_reschedule), failed_node['id']))
+        logger.info(f"Found {len(pods_to_reschedule)} pods to reschedule from node {failed_node['id']}")
         
         # Try to reschedule each pod
         for pod in pods_to_reschedule:
@@ -102,7 +100,7 @@ class HealthMonitor:
         cpu_req = pod["cpu_cores"]
         pod_id = pod["id"]
         
-        logger.info("Attempting to reschedule pod {} requiring {} CPU cores".format(pod_id, cpu_req))
+        logger.info(f"Attempting to reschedule pod {pod_id} requiring {cpu_req} CPU cores")
         
         # Find a healthy node with enough capacity
         for node in self.nodes:
@@ -112,7 +110,7 @@ class HealthMonitor:
                 
             # If node has enough capacity, schedule the pod there
             if node["available_cores"] >= cpu_req:
-                logger.info("Rescheduling pod {} to node {}".format(pod_id, node["id"]))
+                logger.info(f"Rescheduling pod {pod_id} to node {node['id']}")
                 
                 # Update pod assignment
                 pod["assigned_node"] = node["id"]
@@ -121,4 +119,14 @@ class HealthMonitor:
                 node["available_cores"] -= cpu_req
                 node["pods"].append(pod_id)
                 
-                # Remove pod from failed node's list (even though the node
+                # Remove pod from failed node's list (even though the node is down,
+                # we keep the data structure clean)
+                if pod_id in failed_node["pods"]:
+                    failed_node["pods"].remove(pod_id)
+                
+                logger.info(f"Successfully rescheduled pod {pod_id} to node {node['id']}")
+                return
+        
+        # If we get here, we couldn't reschedule the pod
+        logger.warning(f"Failed to reschedule pod {pod_id} - no suitable node available")
+        # We'll keep the pod in the list so we can try to reschedule it later when new nodes join
